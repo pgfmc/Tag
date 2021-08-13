@@ -1,0 +1,42 @@
+name: Tag
+version: 1.0.0
+api-version: 1.17
+author: bk
+main: net.pgfmc.tag.Main
+description: Implements a global market to buy and sell
+commands:
+  addStartLoc:
+    description: Add a starting location for an arena
+    usage: /<command> <arena name>
+    aliases: []
+    permission: pgf.tag.dev
+  changeArenaLoc:
+    description: Change the bounds for an arena
+    usage: /<command> [arena name]
+    aliases: []
+    permission: pgf.tag.dev
+  createArena:
+    description: Create an arena
+    usage: /<command> [arena name]
+    permission: pgf.tag.dev
+  delArena:
+    description: Delete an arena
+    usage: /<command> [arena name]
+    permission: pgf.tag.dev
+  delStartLoc:
+    description: Delete a starting location for an arena
+    usage: /<command> [arena name]
+    permission: pgf.tag.dev
+  toggleArena:
+    description: Toggle an arena's active state
+    usage: /<command> [arena name]
+    permission: pgf.tag.dev
+  tag:
+    description: Initiate a tag request with a player
+    usage: /<command> [player name]
+    permission: pgf.tag.play
+  arenas:
+    description: See a list of arenas
+    usage: /<command>
+    permission: pgf.tag.play
+
