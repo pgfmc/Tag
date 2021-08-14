@@ -1,6 +1,7 @@
 package net.pgfmc.tag.game;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -17,6 +18,8 @@ import net.pgfmc.tag.Main;
 
 public class Game implements Listener {
 	
+
+
 	private Random r = new Random();
 	
 	public Arena arena;
@@ -66,6 +69,18 @@ public class Game implements Listener {
             	time += 0.1;
             }
         }, 0, 2).getTaskId(); // delay before start, delay before next loop
+	}
+	
+	public List<Object> serialize()
+	{
+		List<Object> object = new ArrayList<Object>();
+		object.add(arena.serialize());
+		object.add(winner.toString());
+		object.add(date.toString());
+		object.add(taggerTagger.serialize());
+		object.add(runnerTagger.serialize());
+		
+		return object;
 	}
 	
 	public Player getTagger()

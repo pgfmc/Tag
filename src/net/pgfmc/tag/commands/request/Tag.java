@@ -41,6 +41,12 @@ public class Tag implements CommandExecutor, Listener {
 		Player p1 = (Player) sender;
 		Player p2 = Bukkit.getPlayer(args[0]);
 		
+		if (p1.equals(p2))
+		{
+			p1.sendMessage("§cYou cannot play with yourself ;o");
+			return true;
+		}
+		
 		
 		if (Tagger.findTagger(p1).state == Tagger.State.inGame)
 		{

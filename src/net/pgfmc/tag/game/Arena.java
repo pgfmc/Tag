@@ -2,6 +2,7 @@ package net.pgfmc.tag.game;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
@@ -11,6 +12,7 @@ import org.bukkit.entity.Player;
 import net.pgfmc.tag.Main;
 
 public class Arena {
+
 	
 	public String name;
 	public Location pos1;
@@ -34,7 +36,53 @@ public class Arena {
 		this.pos1 = pos1;
 		this.pos2 = pos2;
 		
-		Main.quickSave();
+		Main.quickSave(this);
+	}
+	
+	public Arena(String name, Location pos1, Location pos2, List<Location> startLocations, boolean active, boolean vacant)
+	{
+		Main.ARENAS.add(this);
+		
+		this.name = name;
+		this.pos1 = pos1;
+		this.pos2 = pos2;
+		this.startLocations = startLocations;
+		this.active = active;
+		this.vacant = vacant;
+	}
+	
+	
+	public List<Object> serialize()
+	{
+		List<Object> object = new ArrayList<Object>();
+		object.add(name);
+		object.add(pos1.serialize());
+		object.add(pos2.serialize());
+		
+		List<Object> tempStartLocations = new ArrayList<Object>();
+		for (int i = 0; i < startLocations.size(); i++)
+		{
+			Location tempLoc = startLocations.get(i);
+			tempStartLocations.add(tempLoc.serialize());
+		}
+		object.add(tempStartLocations);
+		
+		object.add(active);
+		object.add(vacant);
+		
+		return object;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static Arena deserialize(List<Object> object)
+	{
+		List<Location> tempStartLocations = new ArrayList<Location>();
+		for (Object loc : (List<Object>) object.get(3))
+		{
+			tempStartLocations.add(Location.deserialize((Map<String, Object>) loc));
+		}
+		
+		return new Arena((String) object.get(0), Location.deserialize((Map<String, Object>) object.get(1)), Location.deserialize((Map<String, Object>) object.get(2)), tempStartLocations, (boolean) object.get(4), (boolean) object.get(5));
 	}
 	
 	
@@ -125,14 +173,14 @@ public class Arena {
 		this.pos1 = pos1;
 		this.pos2 = pos2;
 		
-		Main.quickSave();
+		Main.quickSave(this);
 	}
 	
 	public void addStartLoc(Location loc)
 	{
 		startLocations.add(loc);
 		
-		Main.quickSave();
+		Main.quickSave(this);
 	}
 	
 	public List<Location> getStartLocs()
@@ -144,7 +192,7 @@ public class Arena {
 	{
 		startLocations.remove(index - 1);
 		
-		Main.quickSave();
+		Main.quickSave(this);
 	}
 	
 	public void commit(boolean youAreSure)
@@ -154,7 +202,7 @@ public class Arena {
 			Main.ARENAS.remove(this);
 		}
 		
-		Main.quickSave();		
+		Main.quickSave(this);		
 	}
 	
 	public void toggle()
@@ -162,11 +210,14 @@ public class Arena {
 		if (active)
 		{
 			active = false;
+		} else
+		{
+			active = true;
 		}
 		
-		active = true;
 		
-		Main.quickSave();
+		
+		Main.quickSave(this);
 	}
 		
 

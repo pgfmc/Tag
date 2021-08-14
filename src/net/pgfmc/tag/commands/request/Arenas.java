@@ -24,6 +24,11 @@ public class Arenas implements CommandExecutor, Listener {
 			}
 		}
 		
+		if (Main.ARENAS.size() <= 0)
+		{
+			sender.sendMessage("§cNo arenas");
+		}
+		
 		return true;
 	}
 	

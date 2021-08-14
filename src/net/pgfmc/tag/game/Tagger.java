@@ -1,5 +1,7 @@
 package net.pgfmc.tag.game;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -26,6 +28,30 @@ public class Tagger {
 		Main.TAGGERS.add(this);
 		
 		this.player = player.getUniqueId();
+	}
+	
+	public Tagger(UUID player, int win, int lose)
+	{
+		Main.TAGGERS.add(this);
+		
+		this.player = player;
+		this.win = win;
+		this.lose = lose;
+	}
+	
+	public List<Object> serialize()
+	{
+		List<Object> object = new ArrayList<Object>();
+		object.add(player.toString());
+		object.add(String.valueOf(win));
+		object.add(String.valueOf(lose));
+		
+		return object;
+	}
+	
+	public static Tagger deserialize(List<Object> object)
+	{
+		return new Tagger(UUID.fromString((String) object.get(0)), Integer.valueOf((String) object.get(1)), Integer.valueOf((String) object.get(2)));
 	}
 	
 	public static Tagger findTagger(Player p)
@@ -76,7 +102,7 @@ public class Tagger {
 		state = State.lobby;
 		game = null;
 		
-		Main.quickSave();
+		Main.quickSave(this);
 	}
 
 }

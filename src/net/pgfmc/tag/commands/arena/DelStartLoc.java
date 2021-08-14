@@ -1,5 +1,9 @@
 package net.pgfmc.tag.commands.arena;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -10,6 +14,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import net.pgfmc.tag.Main;
 import net.pgfmc.tag.game.Arena;
 
 public class DelStartLoc implements CommandExecutor, Listener {
@@ -24,18 +29,19 @@ public class DelStartLoc implements CommandExecutor, Listener {
 	public State state = State.notReady;
 	public Player p;
 	public Arena arena;
-	public Location pos1;
-	public Location pos2;
 	
 	public DelStartLoc(Player p, Arena arena)
 	{
+		Main.DEVOBJS.add(this);
+		
 		this.p = p;
 		this.arena = arena;
 		state = State.ready;
 		
-		for (Location loc : arena.getStartLocs())
+		for (int i = 0; i < arena.getStartLocs().size(); i++)
 		{
-			p.sendMessage("§2" + arena.getStartLocs().indexOf(loc) + 1 + " §o" + loc.toString());
+			Location loc = arena.getStartLocs().get(i);
+			p.sendMessage("§2" + (i + 1) + " §o" + String.valueOf(loc.getBlockX()) + ", " + String.valueOf(loc.getBlockY()) + ", " + String.valueOf(loc.getBlockZ()));
 		}
 		
 		p.sendMessage("§aType the number in chat that corresponds to the start location you would like to delete");
@@ -62,7 +68,8 @@ public class DelStartLoc implements CommandExecutor, Listener {
 			return true;
 		}
 		
-		if (String.valueOf(args[0].substring(0, 1)) != null)
+		List<String> numbers = new ArrayList<String>(Arrays.asList("1","2","3","4","5","6","7","8","9","0"));
+		if (numbers.contains(args[0].substring(0, 1)))
 		{
 			sender.sendMessage("Please start the name with a letter");
 			return true;
@@ -74,52 +81,83 @@ public class DelStartLoc implements CommandExecutor, Listener {
 			return true;
 		}
 		
+		DelStartLoc object = getObject((Player) sender);
+		if (!object.equals(this))
+		{
+			object.state = State.notReady;
+			((Player) sender).sendMessage("§cCanceled last execution");
+		}
 		
 		new DelStartLoc((Player) sender, Arena.findArena(args[0])); // This looks weird, but it allows multiple people to make arenas at the same time // stfu
 		
 		return true;
 	}
 	
+	public DelStartLoc getObject(Player p)
+	{
+		DelStartLoc object = this;
+		
+		for (Object devObject : Main.DEVOBJS)
+		{
+			if (devObject instanceof DelStartLoc)
+			{
+				if (p != ((DelStartLoc) devObject).p) { continue; }
+				if (((DelStartLoc) devObject).state == State.notReady) { continue; }
+				
+				object = (DelStartLoc) devObject;
+				
+				return object;
+			}
+		}
+		
+		return this;
+	}
+	
 	@EventHandler
 	public void onChat(AsyncPlayerChatEvent e)
 	{
-		if (e.getPlayer() != p) { return; }
-		if (state == State.notReady) { return; }
-		if (e.getMessage().toLowerCase() == "stop" || e.getMessage().toLowerCase() == "cancel")
+		DelStartLoc object = getObject(e.getPlayer());
+		
+		if (object.equals(this)) { return; }
+		
+		e.setCancelled(true);
+		
+		if (e.getMessage().toLowerCase().equals("stop") || e.getMessage().toLowerCase().equals("cancel"))
 		{
-			p.sendMessage("§cStopped the execution");
-			state = State.notReady;
+			object.p.sendMessage("§cStopped the execution");
+			object.state = State.notReady;
 			return;
 		}
 		if (String.valueOf(e.getMessage()) == null)
 		{
-			p.sendMessage("§cYou've entered a non-number");
-			p.sendMessage("§a§oType \"stop\" to end this execution");
+			object.p.sendMessage("§cYou've entered a non-number");
+			object.p.sendMessage("§a§oType \"stop\" to end this execution");
 		}
 		
 		int msgNum = Integer.parseInt(e.getMessage());
 		
-		if (msgNum <= 0 || msgNum > arena.getStartLocs().size())
+		if (msgNum <= 0 || msgNum > object.arena.getStartLocs().size())
 		{
-			p.sendMessage("§cYou've entered an invalid number");
-			p.sendMessage("§a§oType \"stop\" to end this execution");
+			object.p.sendMessage("§cYou've entered an invalid number");
+			object.p.sendMessage("§a§oType \"stop\" to end this execution");
 			return;
 		}
 
-		pos1 = p.getLocation();
-		p.sendMessage("§2Location removed");
-		p.sendMessage("§aYou can add this location back with /AddStartLoc <arena name>");
-		state = State.notReady;
+		object.p.sendMessage("§2Location removed");
+		object.p.sendMessage("§aYou can add this location back with /AddStartLoc <arena name>");
+		object.state = State.notReady;
 		
-		arena.delStartLoc(msgNum);
+		object.arena.delStartLoc(msgNum);
 	}
 	
 	@EventHandler
 	public void onQuit(PlayerQuitEvent e)
 	{
-		if (!(this.p == e.getPlayer())) { return; }
+		DelStartLoc object = getObject(e.getPlayer());
 		
-		state = State.notReady;
+		if (object.equals(this)) { return; }
+		
+		object.state = State.notReady;
 	}
 
 }

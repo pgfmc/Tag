@@ -1,5 +1,9 @@
 package net.pgfmc.tag.commands.arena;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -10,6 +14,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import net.pgfmc.tag.Main;
 import net.pgfmc.tag.game.Arena;
 
 public class AddStartLoc implements CommandExecutor, Listener {
@@ -28,6 +33,8 @@ public class AddStartLoc implements CommandExecutor, Listener {
 	
 	public AddStartLoc(Player p, Arena arena)
 	{
+		Main.DEVOBJS.add(this);
+		
 		this.p = p;
 		this.arena = arena;
 		state = State.ready;
@@ -55,7 +62,8 @@ public class AddStartLoc implements CommandExecutor, Listener {
 			return false;
 		}
 		
-		if (String.valueOf(args[0].substring(0, 1)) != null)
+		List<String> numbers = new ArrayList<String>(Arrays.asList("1","2","3","4","5","6","7","8","9","0"));
+		if (numbers.contains(args[0].substring(0, 1)))
 		{
 			sender.sendMessage("Please start the name with a letter");
 			return true;
@@ -67,37 +75,74 @@ public class AddStartLoc implements CommandExecutor, Listener {
 			return true;
 		}
 		
+		AddStartLoc object = getObject((Player) sender);
+		if (!object.equals(this))
+		{
+			object.state = State.notReady;
+			((Player) sender).sendMessage("§cCanceled last execution");
+		}
+		
 		new AddStartLoc((Player) sender, Arena.findArena(args[0])); // This looks weird, but it allows multiple people to make arenas at the same time // stfu
 		
 		return true;
 	}
 	
+	public AddStartLoc getObject(Player p)
+	{
+		AddStartLoc object = this;
+		
+		for (Object devObject : Main.DEVOBJS)
+		{
+			if (devObject instanceof AddStartLoc)
+			{
+				if (p != ((AddStartLoc) devObject).p) { continue; }
+				if (((AddStartLoc) devObject).state == State.notReady) { continue; }
+				
+				object = (AddStartLoc) devObject;
+				
+				return object;
+			}
+		}
+		
+		return this;
+	}
+	
 	@EventHandler
 	public void onChat(AsyncPlayerChatEvent e)
 	{
-		if (e.getPlayer() != p) { return; }
-		if (state == State.notReady) { return; }
-		if (e.getMessage().toLowerCase() == "stop" || e.getMessage().toLowerCase() == "cancel")
+		
+		AddStartLoc object = getObject(e.getPlayer());
+		
+		if (object.equals(this)) { return; }
+		
+		e.setCancelled(true);
+		
+		
+		if (e.getMessage().toLowerCase().equals("stop") || e.getMessage().toLowerCase().equals("cancel"))
 		{
-			p.sendMessage("§cStopped the execution");
-			state = State.notReady;
+			object.p.sendMessage("§cStopped the execution");
+			object.state = State.notReady;
+			
 			return;
 		}
 		
-		loc = p.getLocation();
-		p.sendMessage("§2Location selected");
-		p.sendMessage("§aYou can delete this location later with /DelStartLoc <arena name>");
-		state = State.notReady;
+		object.loc = object.p.getLocation();
+		object.p.sendMessage("§2Location selected");
+		object.p.sendMessage("§aYou can delete this location later with /DelStartLoc <arena name>");
+		object.state = State.notReady;
 		
-		arena.addStartLoc(loc);
+		object.arena.addStartLoc(object.loc);
 	}
 	
 	@EventHandler
 	public void onQuit(PlayerQuitEvent e)
 	{
-		if (!(this.p == e.getPlayer())) { return; }
 		
-		state = State.notReady;
+		AddStartLoc object = getObject(e.getPlayer());
+		
+		if (object.equals(this)) { return; }
+		
+		object.state = State.notReady;
 	}
 
 }

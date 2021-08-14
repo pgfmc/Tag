@@ -1,6 +1,9 @@
 package net.pgfmc.tag.commands.arena;
 
-import org.bukkit.Location;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -10,6 +13,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import net.pgfmc.tag.Main;
 import net.pgfmc.tag.game.Arena;
 
 public class ToggleArena implements CommandExecutor, Listener {
@@ -24,13 +28,12 @@ public class ToggleArena implements CommandExecutor, Listener {
 	public State state = State.notReady;
 	public Player p;
 	public Arena arena;
-	public Location pos1;
-	public Location pos2;
 	
-	public String enableDisable;
 	
 	public ToggleArena(Player p, Arena arena)
 	{
+		Main.DEVOBJS.add(this);
+		
 		this.p = p;
 		this.arena = arena;
 		state = State.ready;
@@ -56,11 +59,11 @@ public class ToggleArena implements CommandExecutor, Listener {
 		
 		if (args.length != 1)
 		{
-			sender.sendMessage("§cPlease use /" + label + "<arena name>");
-			return true;
+			return false;
 		}
 		
-		if (String.valueOf(args[0].substring(0, 1)) != null)
+		List<String> numbers = new ArrayList<String>(Arrays.asList("1","2","3","4","5","6","7","8","9","0"));
+		if (numbers.contains(args[0].substring(0, 1)))
 		{
 			sender.sendMessage("Please start the name with a letter");
 			return true;
@@ -72,49 +75,78 @@ public class ToggleArena implements CommandExecutor, Listener {
 			return true;
 		}
 		
-		if (arena.active == Boolean.valueOf(label))
+		ToggleArena object = getObject((Player) sender);
+		if (!object.equals(this))
 		{
-			sender.sendMessage("§cArena is already in this state");
-			return true;
+			object.state = State.notReady;
+			((Player) sender).sendMessage("§cCanceled last execution");
 		}
 		
-		enableDisable = label;
 		new ToggleArena((Player) sender, Arena.findArena(args[0])); // This looks weird, but it allows multiple people to make arenas at the same time // stfu
 		
 		return true;
 	}
 	
+	public ToggleArena getObject(Player p)
+	{
+		ToggleArena object = this;
+		
+		for (Object devObject : Main.DEVOBJS)
+		{
+			if (devObject instanceof ToggleArena)
+			{
+				if (p != ((ToggleArena) devObject).p) { continue; }
+				if (((ToggleArena) devObject).state == State.notReady) { continue; }
+				
+				object = (ToggleArena) devObject;
+				
+				return object;
+			}
+		}
+		
+		return this;
+	}
+	
 	@EventHandler
 	public void onChat(AsyncPlayerChatEvent e)
 	{
-		if (e.getPlayer() != p) { return; }
-		if (state == State.notReady) { return; }
-		if (e.getMessage().toLowerCase() == "stop" || e.getMessage().toLowerCase() == "cancel")
+		ToggleArena object = getObject(e.getPlayer());
+		
+		if (object.equals(this)) { return; }
+		
+		e.setCancelled(true);
+		
+		if (e.getMessage().toLowerCase().equals("stop") || e.getMessage().toLowerCase().equals("cancel"))
 		{
-			p.sendMessage("§cStopped the execution");
-			state = State.notReady;
+			object.p.sendMessage("§cStopped the execution");
+			object.state = State.notReady;
 			return;
 		}
 		
-		if (e.getMessage().toLowerCase() != arena.name.toLowerCase())
+		if (!e.getMessage().toLowerCase().equals(object.arena.name.toLowerCase()))
 		{
-			p.sendMessage("§cMismatched names, please try again with " + enableDisable + "<arena name>");
+			object.p.sendMessage("\"" + e.getMessage().toLowerCase() + "\"");
+			object.p.sendMessage("\"" + object.arena.name + "\"");
+			object.p.sendMessage("§cMismatched names, please try again with /ToggleArena <arena name>");
+			object.state = State.notReady;
 			return;
 		}
 
-		p.sendMessage("§2Arena toggled");
-		p.sendMessage("§aYou can toggle this Arena back with /ToggleArena <arena name> (/EnableArena and /DisableArena work also)");
-		state = State.notReady;
+		object.p.sendMessage("§2Arena toggled");
+		object.p.sendMessage("§aYou can toggle this Arena back with /ToggleArena <arena name>");
+		object.state = State.notReady;
 		
-		arena.toggle();
+		object.arena.toggle();
 	}
 	
 	@EventHandler
 	public void onQuit(PlayerQuitEvent e)
 	{
-		if (!(this.p == e.getPlayer())) { return; }
+		ToggleArena object = getObject(e.getPlayer());
 		
-		state = State.notReady;
+		if (object.equals(this)) { return; }
+		
+		object.state = State.notReady;
 	}
 
 }
