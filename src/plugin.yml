@@ -1,7 +1,7 @@
 name: Tag
 version: 1.0.0
 api-version: 1.17
-author: bk
+author: [bk, CrimsonDart]
 main: net.pgfmc.tag.Main
 description: Implements a global market to buy and sell
 commands:

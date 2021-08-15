@@ -3,7 +3,6 @@ package net.pgfmc.tag.commands.request;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.event.Listener;
 
 import net.pgfmc.tag.Main;
 import net.pgfmc.tag.game.Arena;
