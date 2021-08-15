@@ -83,7 +83,6 @@ public class Tag implements CommandExecutor, Listener {
 		}
 		
 		
-		
 		new Request(p1, p2);
 		
 		return true;

@@ -8,7 +8,7 @@ import org.bukkit.event.Listener;
 import net.pgfmc.tag.Main;
 import net.pgfmc.tag.game.Arena;
 
-public class Arenas implements CommandExecutor, Listener {
+public class Arenas implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {

@@ -58,7 +58,7 @@ public class Tagger {
 	{
 		for (Tagger tagger : Main.TAGGERS)
 		{
-			if (tagger.getPlayer() == p)
+			if (tagger.getPlayer().equals(p))
 			{
 				Main.TAGGERS.add(tagger);
 				return tagger;
@@ -89,6 +89,12 @@ public class Tagger {
 		return lose + win;
 	}
 	
+	public void startGame(Game game)
+	{
+		this.game = game;
+		state = State.inGame;
+	}
+	
 	public void endGame(boolean won)
 	{
 		if (won)
@@ -100,9 +106,9 @@ public class Tagger {
 		}
 		
 		state = State.lobby;
-		game = null;
+		game = null; // Might not need this
 		
-		Main.quickSave(this);
+		Main.quickSave(serialize(), this.getClass().getSimpleName());
 	}
 
 }

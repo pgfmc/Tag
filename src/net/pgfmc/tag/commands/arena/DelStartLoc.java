@@ -126,12 +126,15 @@ public class DelStartLoc implements CommandExecutor, Listener {
 		{
 			object.p.sendMessage("§cStopped the execution");
 			object.state = State.notReady;
+			
 			return;
 		}
 		if (String.valueOf(e.getMessage()) == null)
 		{
 			object.p.sendMessage("§cYou've entered a non-number");
 			object.p.sendMessage("§a§oType \"stop\" to end this execution");
+			
+			return;
 		}
 		
 		int msgNum = Integer.parseInt(e.getMessage());
@@ -140,6 +143,7 @@ public class DelStartLoc implements CommandExecutor, Listener {
 		{
 			object.p.sendMessage("§cYou've entered an invalid number");
 			object.p.sendMessage("§a§oType \"stop\" to end this execution");
+			
 			return;
 		}
 

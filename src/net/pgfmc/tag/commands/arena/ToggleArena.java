@@ -120,6 +120,7 @@ public class ToggleArena implements CommandExecutor, Listener {
 		{
 			object.p.sendMessage("§cStopped the execution");
 			object.state = State.notReady;
+			
 			return;
 		}
 		
@@ -129,6 +130,7 @@ public class ToggleArena implements CommandExecutor, Listener {
 			object.p.sendMessage("\"" + object.arena.name + "\"");
 			object.p.sendMessage("§cMismatched names, please try again with /ToggleArena <arena name>");
 			object.state = State.notReady;
+			
 			return;
 		}
 

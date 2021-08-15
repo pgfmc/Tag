@@ -22,6 +22,9 @@ public class Request {
 		this.sender = sender.getUniqueId();
 		this.receiver = receiver.getUniqueId();
 		
+		sender.sendMessage("§aTag request -> " + receiver.getName());
+		receiver.sendMessage("§aTag request <- " + sender.getName());
+		
 		init();
 	}
 	
@@ -89,11 +92,12 @@ public class Request {
 		
 		if (!matched)
 		{
-			Bukkit.getPlayer(sender).sendMessage("§cRequest timeout -> " + Bukkit.getOfflinePlayer(receiver).getName());
-			Bukkit.getPlayer(sender).sendMessage("§cRequest timeout <- " + Bukkit.getOfflinePlayer(sender).getName());
+			Bukkit.getPlayer(sender).sendMessage("§cTag request timeout -> " + Bukkit.getOfflinePlayer(receiver).getName());
+			Bukkit.getPlayer(receiver).sendMessage("§cTag request timeout <- " + Bukkit.getOfflinePlayer(sender).getName());
 		} else
 		{
-			Bukkit.getPlayer(sender).sendMessage("§a§oRequest accepted!");
+			Bukkit.getPlayer(sender).sendMessage("§aTag request accepted -> " + Bukkit.getOfflinePlayer(receiver).getName());
+			Bukkit.getPlayer(receiver).sendMessage("§aTag request accepted <- " + Bukkit.getOfflinePlayer(sender).getName());
 		}
 		
 		
@@ -108,10 +112,10 @@ public class Request {
 		
 		if (sender)
 		{
-			Bukkit.getPlayer(receiver).sendMessage("§cRequest timeout (They left) <- " + Bukkit.getOfflinePlayer(this.sender).getName());
+			Bukkit.getPlayer(receiver).sendMessage("§cTag request timeout (They left) <- " + Bukkit.getOfflinePlayer(this.sender).getName());
 		} else
 		{
-			Bukkit.getPlayer(this.sender).sendMessage("§cRequest timeout (They left) -> " + Bukkit.getOfflinePlayer(receiver).getName());
+			Bukkit.getPlayer(this.sender).sendMessage("§cTag request timeout (They left) -> " + Bukkit.getOfflinePlayer(receiver).getName());
 		}
 	}
 }

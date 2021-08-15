@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -42,22 +41,30 @@ public class Main extends JavaPlugin {
 	{
 		plugin = this;
 		
-		getCommand("addStartLoc").setExecutor(new AddStartLoc());
-		getCommand("changeArenaLoc").setExecutor(new ChangeArenaLoc());
-		getCommand("createArena").setExecutor(new CreateArena());
-		getCommand("delArena").setExecutor(new DelArena());
-		getCommand("delStartLoc").setExecutor(new DelStartLoc());
-		getCommand("toggleArena").setExecutor(new ToggleArena());
-		getCommand("tag").setExecutor(new Tag());
+		AddStartLoc addStartLoc = new AddStartLoc();
+		ChangeArenaLoc changeArenaLoc = new ChangeArenaLoc();
+		CreateArena createArena = new CreateArena();
+		DelArena delArena = new DelArena();
+		DelStartLoc delStartLoc = new DelStartLoc();
+		ToggleArena toggleArena = new ToggleArena();
+		Tag tag = new Tag();
+		
+		getCommand("addStartLoc").setExecutor(addStartLoc);
+		getCommand("changeArenaLoc").setExecutor(changeArenaLoc);
+		getCommand("createArena").setExecutor(createArena);
+		getCommand("delArena").setExecutor(delArena);
+		getCommand("delStartLoc").setExecutor(delStartLoc);
+		getCommand("toggleArena").setExecutor(toggleArena);
+		getCommand("tag").setExecutor(tag);
 		getCommand("arenas").setExecutor(new Arenas());
 		
-		getServer().getPluginManager().registerEvents(new AddStartLoc(), this);
-		getServer().getPluginManager().registerEvents(new ChangeArenaLoc(), this);
-		getServer().getPluginManager().registerEvents(new CreateArena(), this);
-		getServer().getPluginManager().registerEvents(new DelArena(), this);
-		getServer().getPluginManager().registerEvents(new DelStartLoc(), this);
-		getServer().getPluginManager().registerEvents(new ToggleArena(), this);
-		getServer().getPluginManager().registerEvents(new Tag(), this);
+		getServer().getPluginManager().registerEvents(addStartLoc, this);
+		getServer().getPluginManager().registerEvents(changeArenaLoc, this);
+		getServer().getPluginManager().registerEvents(createArena, this);
+		getServer().getPluginManager().registerEvents(delArena, this);
+		getServer().getPluginManager().registerEvents(delStartLoc, this);
+		getServer().getPluginManager().registerEvents(toggleArena, this);
+		getServer().getPluginManager().registerEvents(tag, this);
 		getServer().getPluginManager().registerEvents(new Game(), this);
 		
 		
@@ -74,28 +81,32 @@ public class Main extends JavaPlugin {
 		try { db.load(file); } catch (FileNotFoundException except) { except.printStackTrace(); } catch (IOException except) { except.printStackTrace(); } catch (InvalidConfigurationException except) { except.printStackTrace(); }
 		// bruv
 		
+		
+		LinkedList<Tagger> taggers = new LinkedList<Tagger>();
 		TAGGERS.clear();
+		LinkedList<Arena> arenas = new LinkedList<Arena>();
 		ARENAS.clear();
 		
-		if ((List<Object>) db.get("taggers") != null)
+		if ((List<Object>) db.getList("taggers") != null)
 		{
-			for (Object object : (List<Object>) db.get("taggers"))
+			for (Object object : (List<Object>) db.getList("taggers"))
 			{
-				TAGGERS.add(Tagger.deserialize((List<Object>) object));
+				taggers.add(Tagger.deserialize((List<Object>) object));
 			}
 			
 		}
 		
-		if ((List<Object>) db.get("arenas") != null)
+		if ((List<Object>) db.getList("arenas") != null)
 		{
-			for (Object object : (List<Object>) db.get("arenas"))
+			for (Object object : (List<Object>) db.getList("arenas"))
 			{
-				ARENAS.add(Arena.deserialize((List<Object>) object));
+				arenas.add(Arena.deserialize((List<Object>) object));
 			}
 			
 		}
 		
-		
+		TAGGERS = taggers;
+		ARENAS = arenas;
 		
 	}
 	
@@ -131,23 +142,16 @@ public class Main extends JavaPlugin {
 		}
 		
 		
-		db.set("taggers", null);
 		db.set("taggers", taggers);
-		db.set("games", null);
 		db.set("games", games);
-		db.set("arenas", null);
 		db.set("arenas", arenas);
 		// db.set("requests", REQUESTS); // Probably don't save this lol
-		
-		// Might not need this here
-		TAGGERS.clear();
-		ARENAS.clear();
 		
 		try { db.save(file); } catch (IOException except) { except.printStackTrace(); }
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static void quickSave(Object object)
+	public static void quickSave(List<Object> object, String name)
 	{
 		// bruv
 		File file = new File(plugin.getDataFolder() + File.separator + "data");
@@ -158,52 +162,46 @@ public class Main extends JavaPlugin {
 		try { db.load(file); } catch (FileNotFoundException except) { except.printStackTrace(); } catch (IOException except) { except.printStackTrace(); } catch (InvalidConfigurationException except) { except.printStackTrace(); }
 		// bruv
 		
-		if (object.getClass().getSimpleName().equals("Tagger"))
+		if (name.equals("Tagger"))
 		{
-			if (((List<Object>) db.get("taggers")) != null)
+			if ((List<Object>) db.getList("taggers") != null)
 			{
-				db.set("taggers", null);
-				db.set("taggers", ((List<Object>) db.get("taggers")).add(((Tagger) object).serialize()));
+				db.set("taggers", ((List<Object>) db.getList("taggers")).add(object));
 			} else
 			{
 				List<Object> tempObject = new ArrayList<Object>();
-				tempObject.add(((Tagger) object).serialize());
-				
-				db.set("taggers", null);
+				tempObject.add(object);
+
 				db.set("taggers", tempObject);
 			}
 			
 		}
 		
-		if (object.getClass().getSimpleName().equals("Game"))
+		if (name.equals("Game"))
 		{
-			if (((List<Object>) db.get("games")) != null)
+			if ((List<Object>) db.getList("games") != null)
 			{
-				db.set("games", null);
-				db.set("games", ((List<Object>) db.get("games")).add(((Game) object).serialize()));
+				db.set("games", ((List<Object>) db.getList("games")).add(object));
 			} else
 			{
 				List<Object> tempObject = new ArrayList<Object>();
-				tempObject.add(((Game) object).serialize());
-				
-				db.set("games", null);
+				tempObject.add(object);
+
 				db.set("games", tempObject);
 			}
 			
 		}
 		
-		if (object.getClass().getSimpleName().equals("Arena"))
+		if (name.equals("Arena"))
 		{
-			if (((List<Object>) db.get("arenas")) != null)
+			if ((List<Object>) db.getList("arenas") != null)
 			{
-				db.set("arenas", null);
-				db.set("arenas", ((List<Object>) db.get("arenas")).add(((Arena) object).serialize()));
+				db.set("arenas", ((List<Object>) db.getList("arenas")).add(object));
 			} else
 			{
 				List<Object> tempObject = new ArrayList<Object>();
-				tempObject.add(((Arena) object).serialize());
-				
-				db.set("arenas", null);
+				tempObject.add(object);
+
 				db.set("arenas", tempObject);
 			}
 			

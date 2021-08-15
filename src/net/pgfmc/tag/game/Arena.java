@@ -36,7 +36,7 @@ public class Arena {
 		this.pos1 = pos1;
 		this.pos2 = pos2;
 		
-		Main.quickSave(this);
+		Main.quickSave(serialize(), this.getClass().getSimpleName());
 	}
 	
 	public Arena(String name, Location pos1, Location pos2, List<Location> startLocations, boolean active, boolean vacant)
@@ -173,14 +173,14 @@ public class Arena {
 		this.pos1 = pos1;
 		this.pos2 = pos2;
 		
-		Main.quickSave(this);
+		Main.quickSave(serialize(), this.getClass().getSimpleName());
 	}
 	
 	public void addStartLoc(Location loc)
 	{
 		startLocations.add(loc);
 		
-		Main.quickSave(this);
+		Main.quickSave(serialize(), this.getClass().getSimpleName());
 	}
 	
 	public List<Location> getStartLocs()
@@ -192,7 +192,7 @@ public class Arena {
 	{
 		startLocations.remove(index - 1);
 		
-		Main.quickSave(this);
+		Main.quickSave(serialize(), this.getClass().getSimpleName());
 	}
 	
 	public void commit(boolean youAreSure)
@@ -202,7 +202,7 @@ public class Arena {
 			Main.ARENAS.remove(this);
 		}
 		
-		Main.quickSave(this);		
+		Main.quickSave(serialize(), this.getClass().getSimpleName());		
 	}
 	
 	public void toggle()
@@ -217,7 +217,7 @@ public class Arena {
 		
 		
 		
-		Main.quickSave(this);
+		Main.quickSave(serialize(), this.getClass().getSimpleName());
 	}
 		
 

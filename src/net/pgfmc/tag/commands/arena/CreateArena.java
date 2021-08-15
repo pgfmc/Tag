@@ -115,6 +115,7 @@ public class CreateArena implements CommandExecutor, Listener {
 		{
 			object.p.sendMessage("§cStopped the execution");
 			object.state = State.notReady;
+			
 			return;
 		}
 		
@@ -124,6 +125,8 @@ public class CreateArena implements CommandExecutor, Listener {
 			object.p.sendMessage("§2Position 1 selected");
 			object.p.sendMessage("§aStand at position 2, then send any message in chat");
 			object.state = State.pos2;
+			
+			return;
 		}
 		
 		if (object.state == State.pos2)
@@ -135,6 +138,8 @@ public class CreateArena implements CommandExecutor, Listener {
 			object.state = State.notReady;
 			
 			new Arena(object.name, object.pos1, object.pos2);
+			
+			return;
 		}
 	}
 	

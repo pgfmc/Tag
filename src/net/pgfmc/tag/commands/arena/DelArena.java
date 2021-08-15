@@ -120,6 +120,7 @@ public class DelArena implements CommandExecutor, Listener {
 		{
 			object.p.sendMessage("§cStopped the execution");
 			object.state = State.notReady;
+			
 			return;
 		}
 		
@@ -127,6 +128,7 @@ public class DelArena implements CommandExecutor, Listener {
 		{
 			object.p.sendMessage("§cMismatched names, please try again with /DelArena <arena name>");
 			object.state = State.notReady;
+			
 			return;
 		}
 
