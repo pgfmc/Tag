@@ -15,8 +15,6 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import net.pgfmc.tag.Main;
-import net.pgfmc.tag.commands.arena.DelArena;
-import net.pgfmc.tag.commands.arena.DelArena.State;
 
 public class Game implements Listener {
 	
